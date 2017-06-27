@@ -131,7 +131,7 @@ void processFrame(const struct canfd_frame& frame) {
 } // namespace
 
 int main(int argc, char** argv) {
-    using namespace std::chrono_literals;
+    using namespace std::chrono;
 
     // Options
     const char* interface;
@@ -289,7 +289,7 @@ int main(int argc, char** argv) {
 
             // Delay before continuing
             std::perror("read");
-            std::this_thread::sleep_for(100ms);
+            std::this_thread::sleep_for(milliseconds(100));
         default:
             continue;
         }
