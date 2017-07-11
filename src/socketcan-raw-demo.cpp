@@ -54,6 +54,7 @@ TODO: Specify the message formats in the README file.
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 
 #define PROGNAME  "socketcan-raw-demo"
 #define VERSION  "2.0.0"
@@ -130,6 +131,57 @@ void processFrame(const struct canfd_frame& frame) {
 
 } // namespace
 
+class CAN_Filter{
+private:
+    std::vector <struct can_filter> filter_list;
+    struct can_filter *pfilter;
+public:
+    CAN_Filter(){
+        pfilter = NULL;
+    }
+    ~CAN_Filter(){
+        if (pfilter != NULL)
+            delete(pfilter);
+    }
+    /**
+     * Add a new filter CAN-id and mask
+     * @param can_id
+     * @param can_mask
+     */
+    void AddCANFilter(canid_t can_id, canid_t can_mask){ // Set a receive filter so we only receive select CAN IDs
+        struct can_filter my_filter;
+        my_filter.can_id = can_id;
+        my_filter.can_mask = can_mask;
+        filter_list.push_back(my_filter);
+    }
+    /**
+     * Register the CAN Filter List
+     * @param socket_fd - file descriptor
+     * @return 0 for success
+     */
+    int RegisterCANFilter(int socket_fd){
+        int return_value;
+        size_t list_size = filter_list.size();
+        pfilter = new struct can_filter[list_size];
+        int index = 0;
+
+        std::vector<struct can_filter>::const_iterator itr;
+        for (itr = filter_list.begin(); itr < filter_list.end(); ++itr) {
+            pfilter[index].can_id = filter_list[index].can_id;
+            pfilter[index].can_mask = filter_list[index].can_mask;
+            index++;
+        }
+        return_value = ::setsockopt(
+                socket_fd,
+                SOL_CAN_RAW,
+                CAN_RAW_FILTER,
+                &pfilter[0],
+                sizeof(*pfilter) * list_size
+        );
+        return return_value;
+    }
+};
+
 int main(int argc, char** argv) {
     using namespace std::chrono;
 
@@ -205,9 +257,9 @@ int main(int argc, char** argv) {
         std::perror("socket");
         goto errSocket;
     }
-
     // Set a receive filter so we only receive select CAN IDs
     {
+#if 0
         struct can_filter filter[3];
         filter[0].can_id   = 0x0A0;
         filter[0].can_mask = CAN_SFF_MASK;
@@ -223,6 +275,14 @@ int main(int argc, char** argv) {
             &filter,
             sizeof(filter)
         );
+#else
+        CAN_Filter my_filter;
+        my_filter.AddCANFilter(0x0A0, CAN_SFF_MASK);
+        my_filter.AddCANFilter(0x110, CAN_SFF_MASK);
+        my_filter.AddCANFilter(0x320, CAN_SFF_MASK);
+
+        rc = my_filter.RegisterCANFilter(sockfd);
+#endif
         if (-1 == rc) {
             std::perror("setsockopt filter");
             goto errSetup;
