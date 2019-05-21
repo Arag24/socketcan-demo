@@ -4,6 +4,18 @@ These programs demonstrate how to use the SocketCAN API on Linux. You are free
 to use these as a starting point for writing your own SocketCAN enabled
 applications.
 
+## Cross Compilation
+
+### O3D3xx
+
+To cross compile this demo code to run it on an O3D3xx you have to install the provided toolchain to ``/opt/poky/1.8.1`` first. If you do not install the toolchain to its default PATH please adjust the [cmake/toolchains/o3d3xx.cmake](cmake/toolchains/o3d3xx.cmake) file accordingly.
+
+```
+$ mkdir build
+$ cd build
+$ cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/toolchains/o3d3xx.cmake ../
+```
+
 ## Raw Interface Demo
 
 This program demonstrates reading and writing to a CAN bus using SocketCAN's
