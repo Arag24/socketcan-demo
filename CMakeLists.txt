@@ -4,7 +4,7 @@ project(socketcan_demo)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SRC_UTIL_FILES ${PROJECT_SOURCE_DIR}/src/util.c)
-set(HDR_UTIL_FILES ${PROJECT_SOURCE_DIR}/src/util.h)
+set(HDR_UTIL_FILES ${PROJECT_SOURCE_DIR}/src/)
 
 set(SRC_CAN_RAW_DEMO ${PROJECT_SOURCE_DIR}/src/socketcan-raw-demo.cpp)
 set(SRC_CAN_BCM_DEMO ${PROJECT_SOURCE_DIR}/src/socketcan-bcm-demo.cpp)
